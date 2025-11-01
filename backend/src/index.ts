@@ -20,15 +20,17 @@ import 'dotenv/config';
 import express from 'express';
 import type { Express, Request, Response } from 'express';
 import cors from 'cors';
-// Dynamically import route modules (works reliably with ts-node's ESM loader)
-const authRoutes = (await import('./routes/auth.routes.ts')).default;
-const projectRoutes = (await import('./routes/project.routes.ts')).default;
+import passport from 'passport';
+// Static imports using .js extensions so compiled JS in `dist/` references .js files correctly
+import authRoutes from './routes/auth.routes.js';
+import projectRoutes from './routes/project.routes.js';
 const app: Express = express();
 const port = process.env.PORT || 8000;
 
 // --- Middleware ---
 app.use(cors());
 app.use(express.json()); // Middleware to parse JSON bodies
+app.use(passport.initialize());
 
 // --- API Routes ---
 app.use('/auth', authRoutes);

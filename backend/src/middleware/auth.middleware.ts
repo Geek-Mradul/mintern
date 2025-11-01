@@ -17,7 +17,7 @@
  */
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import type { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction, RequestHandler } from 'express';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
@@ -30,8 +30,9 @@ export interface AuthRequest extends Request {
   };
 }
 
-export const protect = (req: AuthRequest, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
+export const protect: RequestHandler = (req, res, next) => {
+  const authReq = req as AuthRequest;
+  const authHeader = authReq.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'No token provided, authorization denied' });
@@ -47,7 +48,7 @@ export const protect = (req: AuthRequest, res: Response, next: NextFunction) => 
     const decoded = jwt.verify(token, JWT_SECRET as string) as { userId: string; email: string };
 
     // Attach user to the request object
-    req.user = decoded;
+    authReq.user = decoded;
     return next(); // Move to the next function (the route handler)
   } catch (error) {
     res.status(401).json({ message: 'Token is not valid' });

@@ -22,6 +22,9 @@ import type { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import passport from 'passport';
+// Load passport configuration (import .js so compiled output resolves correctly)
+import '../config/passport-setup.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -84,6 +87,10 @@ router.post('/login', async (req: Request, res: Response) => {
     }
 
     // Check password
+    if (!user.password) {
+      return res.status(500).json({ message: 'User has no password set' });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -101,5 +108,52 @@ router.post('/login', async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Error logging in', error });
   }
 });
+/**
+ * [GET] /auth/google
+ * The route that starts the Google login flow
+ */
+router.get('/google', passport.authenticate('google'));
 
+/**
+ * [GET] /auth/google/callback
+ * The route Google redirects to.
+ * We'll have passport handle it, turn off sessions, and on success,
+ * we'll get the 'user' object attached to req.
+ */
+router.get(
+  '/google/callback',
+  passport.authenticate('google', {
+    session: false, // We are using JWTs, not sessions
+    failureRedirect: '/auth/google/failure',
+  }),
+  (req: Request, res: Response) => {
+    // --- Successful Authentication ---
+    // req.user is the user object from our passport logic
+    // We need to cast it since req.user is generic
+    const user = req.user as { id: string; email: string };
+
+    if (!user) {
+      return res.status(400).json({ message: 'User not found after auth' });
+    }
+
+    // Generate a JWT, just like in the regular login route
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    // NOTE: In a real app, you'd redirect to your frontend with the token.
+    // For testing, we'll just send the token as JSON.
+    res.json({ message: 'Google login successful', token });
+  }
+);
+
+/**
+ * [GET] /auth/google/failure
+ * Route to hit if the Google login fails (e.g., wrong email domain)
+ */
+router.get('/google/failure', (req: Request, res: Response) => {
+  res.status(401).json({ message: 'Google Auth Failed. Only @hyderabad.bits-pilani.ac.in emails are allowed.' });
+});
 export default router;

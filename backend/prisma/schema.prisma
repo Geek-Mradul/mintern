@@ -25,6 +25,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  INTERNAL // A verified BITS student
+  EXTERNAL // A user from normal signup
+}
+
 // Enum for application status
 enum ApplicationStatus {
   PENDING
@@ -36,9 +41,12 @@ model User {
   id        String    @id @default(cuid())
   email     String    @unique
   name      String
-  password  String
+  password  String?
   bio       String?
   skills    String[]  @default([])
+  
+  role      UserRole  @default(EXTERNAL)
+  googleId  String?   @unique
 
   // Relation: A user can post many projects
   postedProjects Project[] @relation("PostedBy")

@@ -20,7 +20,8 @@ import 'dotenv/config';
 import express from 'express';
 import type { Express, Request, Response } from 'express';
 import cors from 'cors';
-
+// Dynamically import route modules (works reliably with ts-node's ESM loader)
+const authRoutes = (await import('./routes/auth.routes.ts')).default;
 const projectRoutes = (await import('./routes/project.routes.ts')).default;
 const app: Express = express();
 const port = process.env.PORT || 8000;
@@ -30,7 +31,7 @@ app.use(cors());
 app.use(express.json()); // Middleware to parse JSON bodies
 
 // --- API Routes ---
-// Any request to /projects will be handled by projectRoutes
+app.use('/auth', authRoutes);
 app.use('/projects', projectRoutes);
 
 // --- Default Route ---

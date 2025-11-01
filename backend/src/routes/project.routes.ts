@@ -19,6 +19,9 @@
 
 import express from 'express';
 import type { Request, Response } from 'express';
+import type { AuthRequest } from '../middleware/auth.middleware.js';
+// Dynamically load middleware implementation so ts-node's ESM loader resolves the .ts file correctly
+const { protect } = (await import('../middleware/auth.middleware.ts'));
 
 // Create a new router instance
 const router = express.Router();
@@ -56,19 +59,18 @@ router.get('/:id', (req: Request, res: Response) => {
  * [POST] /projects
  * Creates a new project
  */
-router.post('/', (req: Request, res: Response) => {
-  // We log the data from the request body (e.g., from Postman)
-  console.log('Received data:', req.body);
+router.post('/', protect, (req: AuthRequest, res: Response) => {
+  console.log('Post created by user:', req.user?.email);
 
-  // Respond with a "created" message and the (mock) new project
+  console.log('Received data:', req.body);
+  
   res.status(201).json({
     message: 'Project created successfully',
     project: {
-      id: '3', // Mocking a new ID
+      id: '3',
       ...req.body,
+      authorEmail: req.user?.email,
     },
   });
 });
-
-// Export the router to be used in our main server file
 export default router;

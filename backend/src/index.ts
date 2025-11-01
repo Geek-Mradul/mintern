@@ -15,20 +15,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+// SPDX-License-Identifier: GPL-3.0-or-later
+import 'dotenv/config';
 import express from 'express';
-import cors from 'cors';
 import type { Express, Request, Response } from 'express';
+import cors from 'cors';
 
+const projectRoutes = (await import('./routes/project.routes.ts')).default;
 const app: Express = express();
 const port = process.env.PORT || 8000;
 
+// --- Middleware ---
 app.use(cors());
 app.use(express.json()); // Middleware to parse JSON bodies
 
+// --- API Routes ---
+// Any request to /projects will be handled by projectRoutes
+app.use('/projects', projectRoutes);
+
+// --- Default Route ---
 app.get('/', (req: Request, res: Response) => {
   res.send('Welcome to Mintern Backend!');
 });
 
+// --- Server Start ---
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
 });

@@ -1,24 +1,79 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+/*
+ * Mintern
+ * Copyright (C) 2025  Mradul Purohit
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * ... (rest of your GPL header)
+ */
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+// Enum for application status
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
 model User {
-  id    String  @id @default(cuid())
-  email String  @unique
-  name  String?
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String
+  password  String // We will hash this
+  bio       String?
+  skills    String[]  @default([])
+
+  // Relation: A user can post many projects
+  postedProjects Project[] @relation("PostedBy")
+
+  // Relation: A user can submit many applications
+  applications   Application[] @relation("Applicant")
 
   @@map("users")
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  category    String?
+  createdAt   DateTime  @default(now())
+
+  // Relation: Connects to the user who posted it
+  authorId String
+  author   User   @relation("PostedBy", fields: [authorId], references: [id])
+
+  // Relation: A project can have many applications
+  applications Application[] @relation("ProjectAppliedTo")
+
+  @@map("projects")
+}
+
+model Application {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  status    ApplicationStatus @default(PENDING) // pending, accepted, rejected [cite: 28]
+
+  // Relation: Connects to the user who applied
+  applicantId String
+  applicant   User   @relation("Applicant", fields: [applicantId], references: [id])
+
+  // Relation: Connects to the project being applied to
+  projectId String
+  project   Project @relation("ProjectAppliedTo", fields: [projectId], references: [id])
+
+  // Ensure a user can only apply to a project once
+  @@unique([applicantId, projectId])
+  @@map("applications")
 }

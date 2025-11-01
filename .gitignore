@@ -1,0 +1,23 @@
+# ===============================================
+# --- Dependencies ---
+# Ignore all locally installed packages.
+# ===============================================
+node_modules/
+
+
+# ===============================================
+# --- Build & Output ---
+# Ignore the compiled JavaScript output from TypeScript.
+# ===============================================
+dist/
+*.tsbuildinfo
+
+
+# ===============================================
+# --- Logs ---
+# Ignore application and package manager logs.
+# ===============================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

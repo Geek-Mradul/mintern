@@ -24,6 +24,7 @@ import passport from 'passport';
 // Static imports using .js extensions so compiled JS in `dist/` references .js files correctly
 import authRoutes from './routes/auth.routes.js';
 import projectRoutes from './routes/project.routes.js';
+import applicationRoutes from './routes/application.routes.js';
 const app: Express = express();
 const port = process.env.PORT || 8000;
 
@@ -35,6 +36,7 @@ app.use(passport.initialize());
 // --- API Routes ---
 app.use('/auth', authRoutes);
 app.use('/projects', projectRoutes);
+app.use('/', applicationRoutes);
 
 // --- Default Route ---
 app.get('/', (req: Request, res: Response) => {

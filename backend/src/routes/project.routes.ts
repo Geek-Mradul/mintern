@@ -21,56 +21,89 @@ import express from 'express';
 import type { Request, Response } from 'express';
 import { protect } from '../middleware/auth.middleware.js';
 import type { AuthRequest } from '../middleware/auth.middleware.js';
+import { PrismaClient } from '@prisma/client';
 
 // Create a new router instance
 const router = express.Router();
+const prisma = new PrismaClient();
 
-// --- Sample Data ---
-const sampleProjects = [
-  { id: '1', title: 'Build a Note-Taking App', category: 'Web Development' },
-  { id: '2', title: 'Thermodynamics Problem Set', category: 'Academics' },
-];
 
 /**
  * [GET] /projects
- * Fetches all projects
+ * Fetches all projects from the database
  */
-router.get('/', (req: Request, res: Response) => {
-  res.json(sampleProjects);
+router.get('/', async (req: Request, res: Response) => {
+  // 4. REPLACE with this logic
+  try {
+    const projects = await prisma.project.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        author: {
+          select: { name: true, role: true }, // Include author name and role
+        },
+      },
+    });
+    res.json(projects);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching projects' });
+  }
 });
 
 /**
  * [GET] /projects/:id
- * Fetches a single project by its ID
+ * Fetches a single project by its ID from the database
  */
-router.get('/:id', (req: Request, res: Response) => {
-  const { id } = req.params;
-  const project = sampleProjects.find((p) => p.id === id);
+router.get('/:id', async (req: Request, res: Response) => {
+  // 5. REPLACE with this logic
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ message: 'Project id is required' });
+    }
+    const project = await prisma.project.findUnique({
+      where: { id: id },
+      include: {
+        author: {
+          select: { name: true, role: true, email: true },
+        },
+      },
+    });
 
-  if (!project) {
-    return res.status(404).json({ message: 'Project not found' });
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+    res.json(project);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching project' });
   }
-
-  res.json(project);
 });
 
 /**
  * [POST] /projects
  * Creates a new project
  */
-router.post('/', protect, (req, res) => {
+// 6. REPLACE your old POST route with this one
+router.post('/', protect, async (req, res) => {
   const authReq = req as AuthRequest;
-  console.log('Post created by user:', authReq.user?.email);
+  const { title, description, category } = authReq.body;
+  const authorId = authReq.user?.userId;
 
-  console.log('Received data:', authReq.body);
+  if (!authorId) {
+    return res.status(401).json({ message: 'User not authenticated' });
+  }
 
-  res.status(201).json({
-    message: 'Project created successfully',
-    project: {
-      id: '3',
-      ...authReq.body,
-      authorEmail: authReq.user?.email,
-    },
-  });
+  try {
+    const newProject = await prisma.project.create({
+      data: {
+        title,
+        description,
+        category,
+        authorId: authorId,
+      },
+    });
+    res.status(201).json({ message: 'Project created successfully', project: newProject });
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating project', error });
+  }
 });
 export default router;

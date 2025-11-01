@@ -8,6 +8,7 @@ import Login from './pages/Login.tsx';
 import Signup from './pages/Signup.tsx';
 import Dashboard from './pages/Dashboard.tsx';
 import ProtectedRoutes from './components/ProtectedRoutes.tsx';
+import MyApplications from './pages/MyApplications.tsx';
 
 function App() {
   return (
@@ -21,7 +22,7 @@ function App() {
         {/* Protected routes */}
         <Route element={<ProtectedRoutes />}> {/* 2. Wrap */}
           <Route path="dashboard" element={<Dashboard />} />
-          {/* Add other protected routes here */}
+          <Route path="my-applications" element={<MyApplications />} />
         </Route>
 
       </Route>

@@ -50,6 +50,29 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 /**
+ * [GET] /projects/me
+ * Fetches all projects posted by the logged-in user
+ */
+router.get('/me', protect, async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest;
+  const authorId = authReq.user?.userId;
+
+  if (!authorId) {
+    return res.status(401).json({ message: 'User not authenticated' });
+  }
+
+  try {
+    const projects = await prisma.project.findMany({
+      where: { authorId: authorId },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json(projects);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching user projects' });
+  }
+});
+
+/**
  * [GET] /projects/:id
  * Fetches a single project by its ID from the database
  */
@@ -75,28 +98,6 @@ router.get('/:id', async (req: Request, res: Response) => {
     res.json(project);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching project' });
-  }
-});
-/**
- * [GET] /projects/me
- * Fetches all projects posted by the logged-in user
- */
-router.get('/me', protect, async (req: Request, res: Response) => {
-  const authReq = req as AuthRequest;
-  const authorId = authReq.user?.userId;
-
-  if (!authorId) {
-    return res.status(401).json({ message: 'User not authenticated' });
-  }
-
-  try {
-    const projects = await prisma.project.findMany({
-      where: { authorId: authorId },
-      orderBy: { createdAt: 'desc' },
-    });
-    res.json(projects);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching user projects' });
   }
 });
 /**

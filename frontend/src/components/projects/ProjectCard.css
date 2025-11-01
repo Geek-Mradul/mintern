@@ -17,3 +17,25 @@
   color: #555;
   margin-top: 1rem;
 }
+.card-actions {
+  margin-top: 1rem;
+  text-align: right;
+}
+
+.apply-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.apply-button:hover {
+  background-color: #218838;
+}
+
+.apply-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}

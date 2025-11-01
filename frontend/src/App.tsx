@@ -7,17 +7,23 @@ import Home from './pages/Home.tsx';
 import Login from './pages/Login.tsx';
 import Signup from './pages/Signup.tsx';
 import Dashboard from './pages/Dashboard.tsx';
+import ProtectedRoutes from './components/ProtectedRoutes.tsx';
 
 function App() {
   return (
     <Routes>
-      {/* All pages will now use the Layout */}
+      {/* Public routes */}
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<Signup />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        {/* Add more routes here as needed */}
+
+        {/* Protected routes */}
+        <Route element={<ProtectedRoutes />}> {/* 2. Wrap */}
+          <Route path="dashboard" element={<Dashboard />} />
+          {/* Add other protected routes here */}
+        </Route>
+
       </Route>
     </Routes>
   );

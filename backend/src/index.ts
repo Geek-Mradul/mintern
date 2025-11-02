@@ -22,9 +22,11 @@ import type { Express, Request, Response } from 'express';
 import cors from 'cors';
 import passport from 'passport';
 // Static imports using .js extensions so compiled JS in `dist/` references .js files correctly
-import authRoutes from './routes/auth.routes.js';
-import projectRoutes from './routes/project.routes.js';
-import applicationRoutes from './routes/application.routes.js';
+// Dynamically import route modules so ts-node's ESM loader can resolve the TypeScript files reliably in dev
+const authRoutes = (await import('./routes/auth.routes.ts')).default;
+const projectRoutes = (await import('./routes/project.routes.ts')).default;
+const applicationRoutes = (await import('./routes/application.routes.ts')).default;
+const userRoutes = (await import('./routes/user.routes.ts')).default;
 const app: Express = express();
 const port = process.env.PORT || 8000;
 
@@ -37,6 +39,7 @@ app.use(passport.initialize());
 app.use('/auth', authRoutes);
 app.use('/projects', projectRoutes);
 app.use('/', applicationRoutes);
+app.use('/users', userRoutes);
 
 // --- Default Route ---
 app.get('/', (req: Request, res: Response) => {

@@ -7,7 +7,8 @@ export default function Navbar() {
       <Link to="/login" style={{ marginRight: '1rem' }}>Login</Link>
       <Link to="/signup" style={{ marginRight: '1rem' }}>Signup</Link>
       <Link to="/dashboard" style={{ marginRight: '1rem' }}>Dashboard</Link>
-      <Link to="/my-applications">My Applications</Link>
+      <Link to="/my-applications" style={{ marginRight:'1rem'}}>My Applications</Link>
+      <Link to="/profile">Profile</Link>
     </nav>
   );
 }

@@ -9,6 +9,7 @@ import Signup from './pages/Signup.tsx';
 import Dashboard from './pages/Dashboard.tsx';
 import ProtectedRoutes from './components/ProtectedRoutes.tsx';
 import MyApplications from './pages/MyApplications.tsx';
+import Profile from './pages/Profile.tsx';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route element={<ProtectedRoutes />}> {/* 2. Wrap */}
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="my-applications" element={<MyApplications />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
 
       </Route>

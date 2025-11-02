@@ -1,0 +1,54 @@
+.profile-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.profile-header {
+  background-color: #f4f4f4;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.profile-header h2 {
+  margin-top: 0;
+}
+
+.profile-info p {
+  margin: 0.5rem 0;
+}
+
+.profile-info strong {
+  margin-right: 0.5rem;
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
+}
+
+.skills-list li {
+  list-style: none;
+  background-color: #007bff;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+}
+
+.edit-profile-form {
+  margin-top: 1.5rem;
+}
+
+/* We can reuse the auth-form styles for the edit form */
+.profile-lists {
+  margin-top: 2rem;
+}
+
+.profile-lists h3 {
+  border-bottom: 2px solid #eee;
+  padding-bottom: 0.5rem;
+}

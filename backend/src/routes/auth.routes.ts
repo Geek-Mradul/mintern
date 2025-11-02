@@ -23,8 +23,16 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
-// Load passport configuration (import .js so compiled output resolves correctly)
-import '../config/passport-setup.js';
+// Load passport configuration (try TS source in dev, otherwise compiled JS)
+try {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  await import('../config/passport-setup.ts');
+} catch (e) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  await import('../config/passport-setup.js');
+}
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -98,7 +106,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
     // Generate JWT
     const token = jwt.sign(
-      { userId: user.id, email: user.email }, // This is the 'payload'
+    { userId: user.id, email: user.email, role: user.role },// This is the 'payload'
       JWT_SECRET,
       { expiresIn: '1d' } // Token expires in 1 day
     );
@@ -130,7 +138,7 @@ router.get(
     // --- Successful Authentication ---
     // req.user is the user object from our passport logic
     // We need to cast it since req.user is generic
-    const user = req.user as { id: string; email: string };
+    const user = req.user as { id: string; email: string; role: string };
 
     if (!user) {
       return res.status(400).json({ message: 'User not found after auth' });
@@ -138,7 +146,7 @@ router.get(
 
     // Generate a JWT, just like in the regular login route
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+    { userId: user.id, email: user.email, role: user.role },
       JWT_SECRET,
       { expiresIn: '1d' }
     );

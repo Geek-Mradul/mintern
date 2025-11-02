@@ -27,6 +27,7 @@ export interface AuthRequest extends Request {
   user?: {
     userId: string;
     email: string;
+    role: string;
   };
 }
 
@@ -45,7 +46,7 @@ export const protect: RequestHandler = (req, res, next) => {
     }
 
     // Verify token
-    const decoded = jwt.verify(token, JWT_SECRET as string) as { userId: string; email: string };
+  const decoded = jwt.verify(token, JWT_SECRET as string) as { userId: string; email: string; role: string };
 
     // Attach user to the request object
     authReq.user = decoded;

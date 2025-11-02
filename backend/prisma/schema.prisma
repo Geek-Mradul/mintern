@@ -28,12 +28,18 @@ datasource db {
 enum UserRole {
   INTERNAL // A verified BITS student
   EXTERNAL // A user from normal signup
+  ADMIN
 }
 
 // Enum for application status
 enum ApplicationStatus {
   PENDING
   ACCEPTED
+  REJECTED
+}
+enum ProjectStatus {
+  PENDING
+  APPROVED
   REJECTED
 }
 
@@ -63,6 +69,7 @@ model Project {
   description String
   category    String?
   createdAt   DateTime  @default(now())
+  status ProjectStatus @default(PENDING)
 
   // Relation: Connects to the user who posted it
   authorId String

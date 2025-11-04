@@ -43,7 +43,9 @@ const projectRoutes = await loadRoute('./routes/project.routes');
 const applicationRoutes = await loadRoute('./routes/application.routes');
 const userRoutes = await loadRoute('./routes/user.routes');
 const adminRoutes = await loadRoute('./routes/admin.routes');
+const debugRoutes = await loadRoute('./routes/debug.routes');
 const app: Express = express();
+const analyticsRoutes = await loadRoute('./routes/analytics.routes')
 const port = process.env.PORT || 8000;
 
 // --- Middleware ---
@@ -57,7 +59,8 @@ app.use('/projects', projectRoutes);
 app.use('/', applicationRoutes);
 app.use('/users', userRoutes);
 app.use('/admin', adminRoutes);
-
+app.use('/debug', debugRoutes);
+app.use('/analytics', analyticsRoutes);
 // --- Default Route ---
 app.get('/', (req: Request, res: Response) => {
   res.send('Welcome to Mintern Backend!');

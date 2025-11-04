@@ -36,22 +36,24 @@ export const protect: RequestHandler = (req, res, next) => {
   const authHeader = authReq.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.warn('[auth] Missing or malformed Authorization header');
     return res.status(401).json({ message: 'No token provided, authorization denied' });
   }
 
+  const token = authHeader.split(' ')[1]; // Get token from "Bearer TOKEN"
+  if (!token) {
+    console.warn('[auth] Bearer header present but token empty');
+    return res.status(401).json({ message: 'No token provided, authorization denied' });
+  }
+
+  // Verify token
   try {
-    const token = authHeader.split(' ')[1]; // Get token from "Bearer TOKEN"
-    if (!token) {
-      return res.status(401).json({ message: 'No token provided, authorization denied' });
-    }
-
-    // Verify token
-  const decoded = jwt.verify(token, JWT_SECRET as string) as { userId: string; email: string; role: string };
-
+    const decoded = jwt.verify(token, JWT_SECRET as string) as { userId: string; email: string; role: string };
     // Attach user to the request object
     authReq.user = decoded;
     return next(); // Move to the next function (the route handler)
-  } catch (error) {
-    res.status(401).json({ message: 'Token is not valid' });
+  } catch (err: any) {
+    console.warn('[auth] Token verification failed:', err && err.message ? err.message : err);
+    return res.status(401).json({ message: 'Token is not valid' });
   }
 };
